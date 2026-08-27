@@ -17,6 +17,10 @@ func supportsAdaptiveThinking(config *Config) bool {
 // supportsOutputConfig returns true if the platform supports the output_config field
 // with effort control. DeepSeek supports output_config.effort but does NOT support
 // thinking.type = "adaptive".
+// Zhipu and Z.AI's Anthropic-compatible endpoints accept both
+// thinking.type = "adaptive" and output_config.effort (verified in production;
+// their /effort mapping treats xhigh/max as GLM max), so effort is forwarded
+// instead of being downgraded to a fixed thinking budget.
 func supportsOutputConfig(config *Config) bool {
 	if config == nil {
 		return true
@@ -24,7 +28,7 @@ func supportsOutputConfig(config *Config) bool {
 
 	//nolint:exhaustive // Checked.
 	switch config.Type {
-	case PlatformDirect, PlatformClaudeCode, PlatformBedrock, PlatformVertex, PlatformDeepSeek:
+	case PlatformDirect, PlatformClaudeCode, PlatformBedrock, PlatformVertex, PlatformDeepSeek, PlatformZhipu, PlatformZai:
 		return true
 	default:
 		return false

@@ -825,6 +825,66 @@ func TestOutputConfig_Outbound(t *testing.T) {
 				require.Equal(t, "disabled", anthropicReq.Thinking.Type)
 			},
 		},
+		{
+			name: "Zhipu adaptive thinking with effort=max -> forward both without downgrade",
+			chatReq: &llm.Request{
+				Model:     "glm-5.3-flash",
+				MaxTokens: lo.ToPtr(int64(4096)),
+				Messages: []llm.Message{
+					{
+						Role:    "user",
+						Content: llm.MessageContent{Content: lo.ToPtr("hello")},
+					},
+				},
+				TransformerMetadata: map[string]any{
+					TransformerMetadataKeyThinkingType:       "adaptive",
+					TransformerMetadataKeyOutputConfigEffort: "max",
+				},
+			},
+			config: &Config{
+				Type: PlatformZhipu,
+			},
+			validate: func(t *testing.T, anthropicReq *MessageRequest) {
+				t.Helper()
+				// Zhipu's Anthropic-compatible endpoint accepts output_config.effort,
+				// so the client's effort must be forwarded instead of being downgraded
+				// to a fixed thinking budget.
+				require.NotNil(t, anthropicReq.OutputConfig)
+				require.Equal(t, "max", anthropicReq.OutputConfig.Effort)
+				require.NotNil(t, anthropicReq.Thinking)
+				require.Equal(t, "adaptive", anthropicReq.Thinking.Type)
+			},
+		},
+		{
+			name: "Z.AI adaptive thinking with effort=max -> forward both without downgrade",
+			chatReq: &llm.Request{
+				Model:     "glm-5.3-flash",
+				MaxTokens: lo.ToPtr(int64(4096)),
+				Messages: []llm.Message{
+					{
+						Role:    "user",
+						Content: llm.MessageContent{Content: lo.ToPtr("hello")},
+					},
+				},
+				TransformerMetadata: map[string]any{
+					TransformerMetadataKeyThinkingType:       "adaptive",
+					TransformerMetadataKeyOutputConfigEffort: "max",
+				},
+			},
+			config: &Config{
+				Type: PlatformZai,
+			},
+			validate: func(t *testing.T, anthropicReq *MessageRequest) {
+				t.Helper()
+				// Z.AI's Anthropic-compatible endpoint accepts output_config.effort,
+				// so the client's effort must be forwarded instead of being downgraded
+				// to a fixed thinking budget.
+				require.NotNil(t, anthropicReq.OutputConfig)
+				require.Equal(t, "max", anthropicReq.OutputConfig.Effort)
+				require.NotNil(t, anthropicReq.Thinking)
+				require.Equal(t, "adaptive", anthropicReq.Thinking.Type)
+			},
+		},
 	}
 
 	for _, tt := range tests {
