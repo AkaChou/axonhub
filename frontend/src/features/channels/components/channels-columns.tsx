@@ -364,7 +364,7 @@ const NameCell = memo(({ row }: { row: Row<Channel> }) => {
   // credential is unavailable carries an error *and* disabled credentials, and
   // hiding the key icon behind the error would lose the reason it went down.
   const content = (
-    <div className='flex justify-center'>
+    <div className='flex'>
       <div className='flex max-w-56 items-center gap-2'>
         {hasError && <IconAlertTriangle className='text-destructive h-4 w-4 shrink-0' />}
         {hasDisabledKeys && <IconKeyOff className='h-4 w-4 shrink-0 text-amber-500' />}
@@ -693,10 +693,10 @@ export const createColumns = (t: ReturnType<typeof useTranslation>['t'], canWrit
       : []),
     {
       accessorKey: 'name',
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('common.columns.name')} className='justify-center' />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('common.columns.name')} />,
       cell: NameCell,
       meta: {
-        className: 'md:table-cell min-w-48 text-center',
+        className: 'md:table-cell min-w-48',
       },
       enableHiding: false,
       enableSorting: true,
